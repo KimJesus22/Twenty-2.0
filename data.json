@@ -1,0 +1,37 @@
+[
+    {
+        "name": "CLANCY",
+        "year": "2024",
+        "color": "#ff0000",
+        "cover": "",
+        "quote": "I am returning to Trench."
+    },
+    {
+        "name": "SCALED AND ICY",
+        "year": "2021",
+        "color": "#00b7ff",
+        "cover": "",
+        "quote": "Scaled and Icy and Isolated."
+    },
+    {
+        "name": "TRENCH",
+        "year": "2018",
+        "color": "#fce300",
+        "cover": "",
+        "quote": "East is up."
+    },
+    {
+        "name": "BLURRYFACE",
+        "year": "2015",
+        "color": "#000000",
+        "cover": "",
+        "quote": "My name is Blurryface and I care what you think."
+    },
+    {
+        "name": "VESSEL",
+        "year": "2013",
+        "color": "#aebbc9",
+        "cover": "",
+        "quote": "The sun will rise and we will try again."
+    }
+]

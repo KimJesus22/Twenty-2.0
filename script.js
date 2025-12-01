@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     links.forEach(link => {
         link.addEventListener('mouseenter', () => {
-            // Simple random transform for now
             link.style.transform = `translate(${Math.random() * 2 - 1}px, ${Math.random() * 2 - 1}px)`;
         });
 
@@ -40,98 +39,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     `;
     document.head.appendChild(style);
-    // Discography Data
-    const albums = [
-        {
-            name: "CLANCY",
-            year: "2024",
-            color: "#ff0000", // Neon Red
-            cover: ""
-        },
-        {
-            name: "SCALED AND ICY",
-            year: "2021",
-            color: "#00b7ff", // Blue
-            cover: ""
-        },
-        {
-            name: "TRENCH",
-            year: "2018",
-            color: "#fce300", // Yellow
-            cover: ""
-        },
-        {
-            name: "BLURRYFACE",
-            year: "2015",
-            color: "#000000", // Black/Red pattern usually, but using black for contrast
-            cover: ""
-        },
-        {
-            name: "VESSEL",
-            year: "2013",
-            color: "#aebbc9", // Greyish
-            cover: ""
-        }
-    ];
 
-    const albumGrid = document.getElementById('album-grid');
-    const discographySection = document.getElementById('discografia');
-
-    // Render Albums
-    albums.forEach(album => {
-        const card = document.createElement('div');
-        card.classList.add('album-card', 'tape-corner');
-
-        // Use placeholder if image fails (or for now if external links are blocked, but trying URLs)
-        const imgHTML = album.cover ? `<img src="${album.cover}" alt="${album.name}" class="album-cover-img">` : `<div class="album-cover placeholder"></div>`;
-
-        card.innerHTML = `
-            ${imgHTML}
-            <h3>${album.name}</h3>
-            <p>${album.year}</p>
-        `;
-
-        // Interaction
-        card.addEventListener('click', () => {
-            // Change section background
-            discographySection.style.backgroundColor = album.color;
-
-            // Adjust text color for contrast if needed (simple check)
-            if (album.color === '#fce300' || album.color === '#aebbc9' || album.color === '#00b7ff') {
-                discographySection.style.color = '#000';
-                discographySection.querySelectorAll('h2, h3, p').forEach(el => el.style.color = '#000');
-            } else {
-                discographySection.style.color = '#f0f0f0';
-                discographySection.querySelectorAll('h2').forEach(el => el.style.color = 'var(--neon-red)');
-                discographySection.querySelectorAll('h3, p').forEach(el => el.style.color = '#f0f0f0');
+    // Async Data Loading
+    async function loadDiscography() {
+        try {
+            const response = await fetch('data.json');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-        });
+            const albums = await response.json();
+            renderAlbums(albums);
+        } catch (error) {
+            console.error('Error loading discography:', error);
+            const albumGrid = document.getElementById('album-grid');
+            albumGrid.innerHTML = '<p style="color: red; text-align: center;">Error loading data. Please try again later.</p>';
+        }
+    }
 
-        albumGrid.appendChild(card);
-    });
+    function renderAlbums(albums) {
+        const albumGrid = document.getElementById('album-grid');
+        const discographySection = document.getElementById('discografia');
+        const lyricDisplay = document.getElementById('lyric-display');
+
+        albums.forEach(album => {
+            const card = document.createElement('div');
+            card.classList.add('album-card', 'tape-corner');
+
+            const imgHTML = album.cover ? `<img src="${album.cover}" alt="${album.name}" class="album-cover-img">` : `<div class="album-cover placeholder"></div>`;
+
+            card.innerHTML = `
+                ${imgHTML}
+                <h3>${album.name}</h3>
+                <p>${album.year}</p>
+            `;
+
+            // Interaction
+            card.addEventListener('click', () => {
+                // Change section background
+                discographySection.style.backgroundColor = album.color;
+
+                // Show Quote
+                lyricDisplay.textContent = `"${album.quote}"`;
+                lyricDisplay.style.opacity = '0';
+                setTimeout(() => {
+                    lyricDisplay.style.opacity = '1';
+                }, 50);
+
+                // Adjust text color for contrast
+                if (album.color === '#fce300' || album.color === '#aebbc9' || album.color === '#00b7ff') {
+                    discographySection.style.color = '#000';
+                    discographySection.querySelectorAll('h2, h3, p').forEach(el => el.style.color = '#000');
+                    lyricDisplay.style.color = '#000';
+                    lyricDisplay.style.textShadow = 'none';
+                } else {
+                    discographySection.style.color = '#f0f0f0';
+                    discographySection.querySelectorAll('h2').forEach(el => el.style.color = 'var(--neon-red)');
+                    discographySection.querySelectorAll('h3, p').forEach(el => el.style.color = '#f0f0f0');
+                    lyricDisplay.style.color = 'var(--text-color)';
+                    lyricDisplay.style.textShadow = '2px 2px 0px #000';
+                }
+            });
+
+            albumGrid.appendChild(card);
+        });
+    }
+
+    // Load Data
+    loadDiscography();
 
     // Easter Egg: NED Protocol
     const secretCode = 'NED';
     let keyBuffer = [];
 
     document.addEventListener('keydown', (e) => {
-        // Add key to buffer (uppercase for consistency)
         keyBuffer.push(e.key.toUpperCase());
 
-        // Keep buffer size equal to secret code length
         if (keyBuffer.length > secretCode.length) {
             keyBuffer.shift();
         }
 
-        // Check if buffer matches secret code
         if (keyBuffer.join('') === secretCode) {
             activateSecretProtocol();
-            keyBuffer = []; // Reset buffer
+            keyBuffer = [];
         }
     });
 
     function activateSecretProtocol() {
-        // Create Modal Elements
         const overlay = document.createElement('div');
         overlay.classList.add('secret-modal-overlay');
 
@@ -147,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
 
-        // Close functionality
         document.getElementById('escape-btn').addEventListener('click', () => {
             document.body.removeChild(overlay);
         });
