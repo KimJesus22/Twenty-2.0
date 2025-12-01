@@ -1,0 +1,610 @@
+:root {
+    --neon-red: #ff0000;
+    --dark-bg: #0a0a0a;
+    --text-color: #f0f0f0;
+    --tape-color: #fce300;
+    /* Yellow tape for contrast/lore */
+    --font-main: 'Oswald', sans-serif;
+    --font-glitch: 'Rubik Glitch', system-ui;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    overflow-x: hidden;
+}
+
+/* Noise Overlay */
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Header */
+.main-header {
+    padding: 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(5px);
+    border-bottom: 1px solid #333;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-family: var(--font-glitch);
+    font-size: 2rem;
+    color: var(--neon-red);
+    letter-spacing: 2px;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--neon-red);
+}
+
+/* Tape Effect */
+.tape {
+    position: relative;
+    display: inline-block;
+}
+
+.tape::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 110%;
+    height: 20px;
+    background: var(--tape-color);
+    opacity: 0.8;
+    z-index: -1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    clip-path: polygon(0% 2px, 2px 0%, 98% 0%, 100% 2px, 100% 18px, 98% 20px, 2px 20px, 0% 18px);
+}
+
+.tape-corner::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    width: 40px;
+    height: 15px;
+    background: var(--tape-color);
+    transform: rotate(-45deg);
+    opacity: 0.9;
+    z-index: 10;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Glitch Animation */
+@keyframes glitch-anim {
+    0% {
+        clip-path: inset(20% 0 80% 0);
+        transform: translate(-2px, 1px);
+    }
+
+    20% {
+        clip-path: inset(60% 0 10% 0);
+        transform: translate(2px, -1px);
+    }
+
+    40% {
+        clip-path: inset(40% 0 50% 0);
+        transform: translate(-2px, 2px);
+    }
+
+    60% {
+        clip-path: inset(80% 0 5% 0);
+        transform: translate(2px, -2px);
+    }
+
+    80% {
+        clip-path: inset(10% 0 60% 0);
+        transform: translate(-1px, 1px);
+    }
+
+    100% {
+        clip-path: inset(30% 0 30% 0);
+        transform: translate(1px, -1px);
+    }
+}
+
+.glitch {
+    position: relative;
+    color: var(--text-color);
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    clip: rect(24px, 550px, 90px, 0);
+    /* Paused by default */
+    animation: glitch-anim 2.5s infinite linear alternate-reverse paused;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    clip: rect(85px, 550px, 140px, 0);
+    /* Paused by default */
+    animation: glitch-anim 3s infinite linear alternate-reverse paused;
+}
+
+/* Trigger animation on hover of the parent container or the element itself */
+.hero-content:hover .glitch::before,
+.hero-content:hover .glitch::after {
+    animation-play-state: running;
+}
+
+/* Hero Section */
+.hero-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #0d0d0d;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-family: var(--font-glitch);
+    font-size: 6rem;
+    line-height: 1;
+    margin-bottom: 1rem;
+    text-shadow: 4px 4px 0px var(--neon-red);
+    letter-spacing: 5px;
+    color: #ffffff;
+}
+
+.sub-glitch {
+    font-size: 3rem;
+    letter-spacing: 10px;
+    margin-bottom: 2rem;
+    color: var(--neon-red);
+    font-weight: bold;
+}
+
+.release-date {
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(5px);
+    border-bottom: 1px solid #333;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-family: var(--font-glitch);
+    font-size: 2rem;
+    color: var(--neon-red);
+    letter-spacing: 2px;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--neon-red);
+}
+
+/* Tape Effect */
+.tape {
+    position: relative;
+    display: inline-block;
+}
+
+.tape::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 110%;
+    height: 20px;
+    background: var(--tape-color);
+    opacity: 0.8;
+    z-index: -1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    clip-path: polygon(0% 2px, 2px 0%, 98% 0%, 100% 2px, 100% 18px, 98% 20px, 2px 20px, 0% 18px);
+}
+
+.tape-corner::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    width: 40px;
+    height: 15px;
+    background: var(--tape-color);
+    transform: rotate(-45deg);
+    opacity: 0.9;
+    z-index: 10;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Glitch Animation */
+@keyframes glitch-anim {
+    0% {
+        clip-path: inset(20% 0 80% 0);
+        transform: translate(-2px, 1px);
+    }
+
+    20% {
+        clip-path: inset(60% 0 10% 0);
+        transform: translate(2px, -1px);
+    }
+
+    40% {
+        clip-path: inset(40% 0 50% 0);
+        transform: translate(-2px, 2px);
+    }
+
+    60% {
+        clip-path: inset(80% 0 5% 0);
+        transform: translate(2px, -2px);
+    }
+
+    80% {
+        clip-path: inset(10% 0 60% 0);
+        transform: translate(-1px, 1px);
+    }
+
+    100% {
+        clip-path: inset(30% 0 30% 0);
+        transform: translate(1px, -1px);
+    }
+}
+
+.glitch {
+    position: relative;
+    color: var(--text-color);
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    clip: rect(24px, 550px, 90px, 0);
+    /* Paused by default */
+    animation: glitch-anim 2.5s infinite linear alternate-reverse paused;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    clip: rect(85px, 550px, 140px, 0);
+    /* Paused by default */
+    animation: glitch-anim 3s infinite linear alternate-reverse paused;
+}
+
+/* Trigger animation on hover of the parent container or the element itself */
+.hero-content:hover .glitch::before,
+.hero-content:hover .glitch::after {
+    animation-play-state: running;
+}
+
+/* Hero Section */
+.hero-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #0d0d0d;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-family: var(--font-glitch);
+    font-size: 6rem;
+    line-height: 1;
+    margin-bottom: 1rem;
+    text-shadow: 4px 4px 0px var(--neon-red);
+    letter-spacing: 5px;
+    color: #ffffff;
+}
+
+.sub-glitch {
+    font-size: 3rem;
+    letter-spacing: 10px;
+    margin-bottom: 2rem;
+    color: var(--neon-red);
+    font-weight: bold;
+}
+
+.release-date {
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+    color: var(--neon-red);
+    font-weight: bold;
+    border: 1px solid var(--neon-red);
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    transform: rotate(-2deg);
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 1rem 3rem;
+    background: transparent;
+    border: 2px solid var(--neon-red);
+
+    .tour-item .date {
+        color: var(--neon-red);
+        font-weight: bold;
+        font-size: 1.2rem;
+        width: 100px;
+    }
+
+    .tour-item .city,
+    .tour-item .venue {
+        flex: 1;
+    }
+
+    .ticket-btn {
+        padding: 0.5rem 1.5rem;
+        border: 1px solid #fff;
+        color: #fff;
+        margin-top: 5rem;
+        border-top: 1px solid var(--neon-red);
+        background-image: repeating-linear-gradient(45deg,
+                #111,
+                #111 10px,
+                #151515 10px,
+                #151515 20px);
+    }
+
+    .newsletter-form {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .newsletter-form input {
+        padding: 1rem;
+        background: #000;
+        border: 1px solid #333;
+        color: #fff;
+        width: 300px;
+        font-family: var(--font-main);
+    }
+
+    .newsletter-form button {
+        padding: 1rem 2rem;
+        background: var(--neon-red);
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: var(--font-main);
+        transition: background 0.3s;
+    }
+
+    .newsletter-form button:hover {
+        background: #fff;
+    }
+
+    /* Footer */
+    footer {
+        padding: 3rem;
+        text-align: center;
+        border-top: 1px solid #333;
+        margin-top: 5rem;
+        background: #050505;
+    }
+
+    .social-links {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .social-links a {
+        color: #888;
+        text-decoration: none;
+    }
+
+    .social-links a:hover {
+        color: var(--neon-red);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 3rem;
+        }
+
+        .tour-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .newsletter-form {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    /* Secret Modal */
+    .secret-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .secret-modal {
+        background: #000;
+        border: 2px solid #0f0;
+        padding: 2rem;
+        max-width: 500px;
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+        color: #0f0;
+        box-shadow: 0 0 20px #0f0;
+        animation: zoomIn 0.3s ease-out;
+    }
+
+    .secret-modal h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        animation: blink 1s infinite;
+    }
+
+    .secret-modal p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .secret-btn {
+        background: transparent;
+        border: 1px solid #0f0;
+        color: #0f0;
+        padding: 0.5rem 2rem;
+        font-family: inherit;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .secret-btn:hover {
+        background: #0f0;
+        color: #000;
+    }
+
+    @keyframes blink {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+}
