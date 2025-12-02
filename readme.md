@@ -89,6 +89,27 @@ Implementación de un "Keylogger" seguro del lado del cliente para desbloquear c
 Optimización de assets gráficos para reducir el tiempo de carga (LCP).
 - **Texturas:** El efecto de "ruido" (static noise) y las cintas adhesivas se generan matemáticamente con CSS y SVG Data URIs, eliminando la necesidad de cargar imágenes pesadas (.png/.jpg).
 
+### 4. 📱 PWA (Progressive Web App)
+El sitio es totalmente instalable tanto en dispositivos móviles como de escritorio, ofreciendo una experiencia nativa.
+- **Offline First:** Implementación de un **Service Worker** con estrategia de caché agresiva ('Cache First'). Esto permite que la aplicación cargue instantáneamente y funcione sin conexión a internet una vez visitada.
+- **Estándares Web:** Cumple con todos los requisitos de instalación modernos: `manifest.json` configurado, servicio a través de HTTPS (en producción) e iconos adaptables.
+
+### 5. 💻 System Override (CLI)
+Para los usuarios avanzados, se ha implementado una **Terminal de Comandos Oculta**.
+- **Acceso:** Presiona la tecla `F2` o `Backtick ( ` )` para desplegar la consola de sistema.
+- **Ingeniería:** Cuenta con un intérprete de comandos personalizado escrito en JavaScript que realiza tokenización y parsing de strings en tiempo real.
+
+| Comando | Descripción |
+| :--- | :--- |
+| `help` | Muestra la lista de comandos disponibles. |
+| `list` | Despliega los álbumes disponibles (desde el JSON). |
+| `play [album]` | Reproduce el tema de una era (ej: `play trench`). |
+| `clear` | Limpia el buffer de la pantalla. |
+| `whoami` | Revela la identidad del usuario actual. |
+
+> **Nota:** Existen comandos ocultos (Easter Eggs) relacionados con el lore de DEMA esperando ser descubiertos.
+
+
 ## 🛠️ Stack Tecnológico
 
 * **Core:** HTML5 Semántico, CSS3 (Variables & Flexbox/Grid).

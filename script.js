@@ -227,6 +227,118 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Data
     loadDiscography();
 
+    // Terminal Controller Class
+    class TerminalController {
+        constructor(audioController) {
+            this.audioController = audioController;
+            this.overlay = document.getElementById('terminal-overlay');
+            this.output = document.getElementById('terminal-output');
+            this.input = document.getElementById('terminal-input');
+            this.isOpen = false;
+            this.albums = [];
+
+            this.init();
+        }
+
+        init() {
+            // Load albums for 'ls' command
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    this.albums = data;
+                });
+
+            // Toggle Terminal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '`' || e.key === 'F2') {
+                    e.preventDefault();
+                    this.toggle();
+                }
+            });
+
+            // Handle Input
+            this.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const command = this.input.value.trim();
+                    if (command) {
+                        this.processCommand(command);
+                    }
+                    this.input.value = '';
+                }
+            });
+        }
+
+        toggle() {
+            this.isOpen = !this.isOpen;
+            this.overlay.style.display = this.isOpen ? 'block' : 'none';
+            if (this.isOpen) {
+                this.input.focus();
+            }
+        }
+
+        log(text, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `terminal-${type}`;
+            div.textContent = text;
+            this.output.appendChild(div);
+            this.overlay.scrollTop = this.overlay.scrollHeight;
+        }
+
+        processCommand(input) {
+            this.log(`user@dema:~$ ${input}`, 'log');
+
+            const parts = input.toLowerCase().split(' ');
+            const cmd = parts[0];
+            const arg = parts.slice(1).join(' ');
+
+            switch (cmd) {
+                case 'help':
+                    this.log('Available commands:\n  help - Show this list\n  clear - Clear terminal\n  ls - List albums\n  play [album] - Play album audio\n  whoami - Show current user\n  exit - Close terminal', 'response');
+                    break;
+                case 'clear':
+                    this.output.innerHTML = '';
+                    break;
+                case 'ls':
+                case 'list':
+                    const names = this.albums.map(a => a.name).join('\n  ');
+                    this.log(`Available Albums:\n  ${names}`, 'response');
+                    break;
+                case 'play':
+                    if (!arg) {
+                        this.log('Usage: play [album name]', 'error');
+                        return;
+                    }
+                    const album = this.albums.find(a => a.name.toLowerCase() === arg);
+                    if (album) {
+                        this.log(`Playing: ${album.name}...`, 'response');
+                        this.audioController.play(album.audioSrc);
+                    } else {
+                        this.log(`Error: Album '${arg}' not found.`, 'error');
+                    }
+                    break;
+                case 'whoami':
+                    this.log('KimJesus21 - System Admin', 'response');
+                    break;
+                case 'exit':
+                    this.toggle();
+                    break;
+                case 'east':
+                    if (arg === 'is up') {
+                        this.log("I'm fearless when I hear this on the low.", 'response');
+                        // Future: Unlock special content
+                    } else {
+                        this.log("Direction unclear.", 'error');
+                    }
+                    break;
+                default:
+                    this.log(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error');
+            }
+        }
+    }
+
+    // Initialize Terminal
+    const terminal = new TerminalController(audioController);
+
     // Easter Egg: NED Protocol
     const secretCode = 'NED';
     let keyBuffer = [];
