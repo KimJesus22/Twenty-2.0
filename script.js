@@ -40,6 +40,116 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
 
+    // Audio Controller Class
+    class AudioController {
+        constructor() {
+            this.currentAudio = null;
+            this.fadeInterval = null;
+            this.visualizer = null;
+            this.createVisualizer();
+        }
+
+        createVisualizer() {
+            // Create Equalizer HTML
+            const equalizer = document.createElement('div');
+            equalizer.classList.add('equalizer');
+            equalizer.innerHTML = `
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            `;
+
+            // Insert into Hero Content (next to CTA or Title)
+            const heroContent = document.querySelector('.hero-content');
+            if (heroContent) {
+                heroContent.appendChild(equalizer);
+                this.visualizer = equalizer;
+            }
+        }
+
+        toggleVisualizer(isPlaying) {
+            if (this.visualizer) {
+                this.visualizer.style.opacity = isPlaying ? '1' : '0';
+            }
+        }
+
+        play(url) {
+            // 1. Fade Out Current Audio
+            if (this.currentAudio) {
+                const oldAudio = this.currentAudio;
+                this.fadeOut(oldAudio);
+            }
+
+            // 2. Setup New Audio
+            if (!url) return;
+
+            const newAudio = new Audio(url);
+            newAudio.volume = 0; // Start at 0
+            this.currentAudio = newAudio;
+
+            const playPromise = newAudio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // 3. Fade In New Audio (Target 0.3 in 1s)
+                    this.fadeIn(newAudio, 0.3, 1000);
+                    this.toggleVisualizer(true);
+                }).catch(error => {
+                    console.warn("Audio play failed (Autoplay/Missing file):", error);
+                    // Even if it fails (e.g. missing file), we might want to show visualizer for effect? 
+                    // No, better to keep it hidden if no audio.
+                    this.toggleVisualizer(false);
+                });
+            }
+        }
+
+        fadeOut(audio) {
+            // Clear any existing fade on this audio to avoid conflicts
+            // (Simple implementation: just let it fade out independently)
+            const fadeStep = 0.05;
+            const intervalTime = 50; // Fast fade out
+
+            const fadeOutInterval = setInterval(() => {
+                if (audio.volume > 0.05) {
+                    audio.volume -= fadeStep;
+                } else {
+                    audio.volume = 0;
+                    audio.pause();
+                    audio.currentTime = 0;
+                    clearInterval(fadeOutInterval);
+
+                    // Only hide visualizer if this was the current audio and no new one started
+                    // But simpler: if we are fading out, we assume another one might start.
+                    // If this is the *current* audio being stopped (e.g. manual stop), hide it.
+                    // In this flow, play() calls fadeOut() then starts new audio.
+                    // So play() handles showing it.
+                }
+            }, intervalTime);
+        }
+
+        fadeIn(audio, targetVolume, duration) {
+            const steps = 20; // Number of steps
+            const intervalTime = duration / steps;
+            const volumeStep = targetVolume / steps;
+
+            let currentStep = 0;
+
+            const fadeInInterval = setInterval(() => {
+                if (currentStep < steps && audio.volume < targetVolume) {
+                    // Ensure we don't exceed target volume due to floating point math
+                    audio.volume = Math.min(audio.volume + volumeStep, targetVolume);
+                    currentStep++;
+                } else {
+                    audio.volume = targetVolume;
+                    clearInterval(fadeInInterval);
+                }
+            }, intervalTime);
+        }
+    }
+
+    const audioController = new AudioController();
+
     // Async Data Loading
     async function loadDiscography() {
         try {
@@ -52,7 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error loading discography:', error);
             const albumGrid = document.getElementById('album-grid');
-            albumGrid.innerHTML = '<p style="color: red; text-align: center;">Error loading data. Please try again later.</p>';
+            if (albumGrid) {
+                albumGrid.innerHTML = '<p style="color: red; text-align: center;">Error loading data. Please try again later.</p>';
+            }
         }
     }
 
@@ -60,6 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const albumGrid = document.getElementById('album-grid');
         const discographySection = document.getElementById('discografia');
         const lyricDisplay = document.getElementById('lyric-display');
+
+        if (!albumGrid || !discographySection || !lyricDisplay) {
+            console.error("Missing DOM elements for discography");
+            return;
+        }
 
         albums.forEach(album => {
             const card = document.createElement('div');
@@ -77,6 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('click', () => {
                 // Change section background
                 discographySection.style.backgroundColor = album.color;
+
+                // Play Audio Theme using Class
+                audioController.play(album.audioSrc);
 
                 // Show Quote
                 lyricDisplay.textContent = `"${album.quote}"`;
@@ -144,4 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(overlay);
         });
     }
+
+    // Service Worker Registration moved to index.html as per request
 });

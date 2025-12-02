@@ -524,29 +524,286 @@ footer {
         opacity: 1;
     }
 
-    50% {
+    .tour-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #333;
+        transition: background 0.3s;
+    }
+
+    .tour-item:hover {
+        background: rgba(255, 0, 0, 0.05);
+        padding-left: 1rem;
+    }
+
+    .tour-item .date {
+        color: var(--neon-red);
+        font-weight: bold;
+        font-size: 1.2rem;
+        width: 100px;
+    }
+
+    .tour-item .city,
+    .tour-item .venue {
+        flex: 1;
+    }
+
+    .ticket-btn {
+        padding: 0.5rem 1.5rem;
+        border: 1px solid #fff;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        margin-top: 0;
+        border-top: 1px solid var(--neon-red);
+        background-image: repeating-linear-gradient(45deg,
+                #111,
+                #111 10px,
+                #151515 10px,
+                #151515 20px);
+    }
+
+    .ticket-btn:hover {
+        background: #fff;
+        color: #000;
+    }
+
+    /* Newsletter */
+    .newsletter {
+        text-align: center;
+        background: #111;
+        margin-top: 5rem;
+        border-top: 1px solid var(--neon-red);
+        background-image: repeating-linear-gradient(45deg,
+                #111,
+                #111 10px,
+                #151515 10px,
+                #151515 20px);
+    }
+
+    .newsletter-form {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .newsletter-form input {
+        padding: 1rem;
+        background: #000;
+        border: 1px solid #333;
+        color: #fff;
+        width: 300px;
+        font-family: var(--font-main);
+    }
+
+    .newsletter-form button {
+        padding: 1rem 2rem;
+        background: var(--neon-red);
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: var(--font-main);
+        transition: background 0.3s;
+    }
+
+    .newsletter-form button:hover {
+        background: #fff;
+    }
+
+    /* Footer */
+    footer {
+        padding: 3rem;
+        text-align: center;
+        border-top: 1px solid #333;
+        margin-top: 5rem;
+        background: #050505;
+    }
+
+    .social-links {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .social-links a {
+        color: #888;
+        text-decoration: none;
+    }
+
+    .social-links a:hover {
+        color: var(--neon-red);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 3rem;
+        }
+
+        .tour-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .newsletter-form {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    /* Secret Modal */
+    .secret-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .secret-modal {
+        background: #000;
+        border: 2px solid #0f0;
+        padding: 2rem;
+        max-width: 500px;
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+        color: #0f0;
+        box-shadow: 0 0 20px #0f0;
+        animation: zoomIn 0.3s ease-out;
+    }
+
+    .secret-modal h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        animation: blink 1s infinite;
+    }
+
+    .secret-modal p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .secret-btn {
+        background: transparent;
+        border: 1px solid #0f0;
+        color: #0f0;
+        padding: 0.5rem 2rem;
+        font-family: inherit;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .secret-btn:hover {
+        background: #0f0;
+        color: #000;
+    }
+
+    @keyframes blink {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeZoom {
+        0% {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Audio Visualizer */
+    .equalizer {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 20px;
         opacity: 0;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes zoomIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
+        transition: opacity 0.5s ease;
+        margin-left: 15px;
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10;
     }
 
-    to {
-        transform: scale(1);
-        opacity: 1;
+    .equalizer span {
+        width: 3px;
+        height: 15px;
+        background-color: var(--neon-red);
+        animation: bounce 1s infinite ease-in-out;
     }
-}
+
+    .equalizer span:nth-child(1) {
+        animation-duration: 0.4s;
+    }
+
+    .equalizer span:nth-child(2) {
+        animation-duration: 0.6s;
+    }
+
+    .equalizer span:nth-child(3) {
+        animation-duration: 0.55s;
+    }
+
+    .equalizer span:nth-child(4) {
+        animation-duration: 0.45s;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: scaleY(1);
+        }
+
+        50% {
+            transform: scaleY(1.8);
+        }
+    }
