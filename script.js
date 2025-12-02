@@ -1,6 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("TOP 2.0 // CLANCY ERA INITIALIZED");
 
+    // Supabase Configuration
+    const SUPABASE_URL = 'https://zcnwqpgiwbtmtvpbwomi.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbndxcGdpd2J0bXR2cGJ3b21pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ2MzU1ODQsImV4cCI6MjA4MDIxMTU4NH0.7DfcnnYeqqjvu5zP74koP1NrWm6muL1Xo0JfNrBxX4Q';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Cloud Data Functions
+    async function addLogToCloud(message) {
+        const { data, error } = await supabase
+            .from('guestbook')
+            .insert([{ username: 'KimJesus21', message: message }]);
+
+        if (error) {
+            console.error('Error adding log:', error);
+            return false;
+        }
+        return true;
+    }
+
+    async function fetchCloudLogs() {
+        const { data, error } = await supabase
+            .from('guestbook')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (error) {
+            console.error('Error fetching logs:', error);
+            return [];
+        }
+        return data;
+    }
+
     // Glitch Effect on Hover for Links
     const links = document.querySelectorAll('a');
 
@@ -40,6 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
 
+
+
     // Audio Controller Class
     class AudioController {
         constructor() {
@@ -54,11 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const equalizer = document.createElement('div');
             equalizer.classList.add('equalizer');
             equalizer.innerHTML = `
+        < span ></span >
                 <span></span>
                 <span></span>
                 <span></span>
-                <span></span>
-            `;
+    `;
 
             // Insert into Hero Content (next to CTA or Title)
             const heroContent = document.querySelector('.hero-content');
@@ -182,13 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('album-card', 'tape-corner');
 
-            const imgHTML = album.cover ? `<img src="${album.cover}" alt="${album.name}" class="album-cover-img">` : `<div class="album-cover placeholder"></div>`;
+            const imgHTML = album.cover ? `< img src = "${album.cover}" alt = "${album.name}" class="album-cover-img" > ` : ` < div class="album-cover placeholder" ></div > `;
 
             card.innerHTML = `
                 ${imgHTML}
                 <h3>${album.name}</h3>
                 <p>${album.year}</p>
-            `;
+    `;
 
             // Interaction
             card.addEventListener('click', () => {
@@ -237,7 +271,19 @@ document.addEventListener('DOMContentLoaded', () => {
             this.isOpen = false;
             this.albums = [];
 
+            // Security
+            this.isAuthenticated = false;
+            this.PASSWORD_HASH = '5e04b2b4800c331730aba213f82332828fbec17a5140a1880bcbe1f3da1055f5'; // Placeholder
+
             this.init();
+        }
+
+        async sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
         }
 
         init() {
@@ -284,16 +330,16 @@ document.addEventListener('DOMContentLoaded', () => {
             this.overlay.scrollTop = this.overlay.scrollHeight;
         }
 
-        processCommand(input) {
+        async processCommand(input) {
             this.log(`user@dema:~$ ${input}`, 'log');
 
-            const parts = input.toLowerCase().split(' ');
-            const cmd = parts[0];
+            const parts = input.split(' ');
+            const cmd = parts[0].toLowerCase();
             const arg = parts.slice(1).join(' ');
 
             switch (cmd) {
                 case 'help':
-                    this.log('Available commands:\n  help - Show this list\n  clear - Clear terminal\n  ls - List albums\n  play [album] - Play album audio\n  whoami - Show current user\n  exit - Close terminal', 'response');
+                    this.log('Comandos disponibles:\n  help - Mostrar esta lista\n  clear - Limpiar terminal\n  ls - Listar álbumes\n  play [album] - Reproducir audio\n  whoami - Ver usuario actual\n  login [pass] - Autenticarse\n  logout - Cerrar sesión\n  log [msg] - Guardar en nube (Req. Auth)\n  read - Leer logs de nube\n  exit - Cerrar terminal', 'response');
                     break;
                 case 'clear':
                     this.output.innerHTML = '';
@@ -301,37 +347,89 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'ls':
                 case 'list':
                     const names = this.albums.map(a => a.name).join('\n  ');
-                    this.log(`Available Albums:\n  ${names}`, 'response');
+                    this.log(`Álbumes Disponibles:\n  ${names}`, 'response');
                     break;
                 case 'play':
                     if (!arg) {
-                        this.log('Usage: play [album name]', 'error');
+                        this.log('Uso: play [nombre álbum]', 'error');
                         return;
                     }
-                    const album = this.albums.find(a => a.name.toLowerCase() === arg);
+                    const album = this.albums.find(a => a.name.toLowerCase() === arg.toLowerCase());
                     if (album) {
-                        this.log(`Playing: ${album.name}...`, 'response');
+                        this.log(`Reproduciendo: ${album.name}...`, 'response');
                         this.audioController.play(album.audioSrc);
                     } else {
-                        this.log(`Error: Album '${arg}' not found.`, 'error');
+                        this.log(`Error: Álbum '${arg}' no encontrado.`, 'error');
                     }
                     break;
                 case 'whoami':
-                    this.log('KimJesus21 - System Admin', 'response');
+                    this.log(this.isAuthenticated ? 'Clancy - Líder de la Resistencia' : 'KimJesus21 - Admin del Sistema (No Verificado)', 'response');
                     break;
                 case 'exit':
                     this.toggle();
                     break;
                 case 'east':
-                    if (arg === 'is up') {
-                        this.log("I'm fearless when I hear this on the low.", 'response');
+                    if (arg.toLowerCase() === 'is up') {
+                        this.log("No tengo miedo cuando escucho esto en voz baja.", 'response');
                         // Future: Unlock special content
                     } else {
-                        this.log("Direction unclear.", 'error');
+                        this.log("Dirección no clara.", 'error');
                     }
                     break;
+                case 'login':
+                    if (!arg) {
+                        this.log('Uso: login [contraseña]', 'error');
+                        return;
+                    }
+                    const hash = await this.sha256(arg);
+                    if (hash === this.PASSWORD_HASH) {
+                        this.isAuthenticated = true;
+                        this.log('>> Acceso Concedido. Bienvenido, Clancy.', 'response');
+                        const lastLog = this.output.lastElementChild;
+                        if (lastLog) lastLog.style.color = '#0f0';
+                    } else {
+                        this.log('>> Acceso Denegado. Violación de integridad.', 'error');
+                    }
+                    break;
+                case 'logout':
+                    this.isAuthenticated = false;
+                    this.log('Sesión terminada.', 'response');
+                    break;
+                case 'log':
+                    if (!this.isAuthenticated) {
+                        this.log('>> Error: Autorización requerida. Inicia sesión primero.', 'error');
+                        return;
+                    }
+                    if (!arg) {
+                        this.log('Uso: log [mensaje]', 'error');
+                        return;
+                    }
+                    this.log('Guardando en archivos de DEMA...', 'response');
+                    addLogToCloud(arg).then(success => {
+                        if (success) {
+                            this.log('>> Log guardado en archivos de DEMA.', 'response');
+                            const lastLog = this.output.lastElementChild;
+                            if (lastLog) lastLog.style.color = '#0f0';
+                        } else {
+                            this.log('Error: No se pudo guardar el log.', 'error');
+                        }
+                    });
+                    break;
+                case 'read':
+                    this.log('Recuperando archivos...', 'response');
+                    fetchCloudLogs().then(logs => {
+                        if (logs.length === 0) {
+                            this.log('No se encontraron archivos.', 'response');
+                        } else {
+                            logs.forEach(log => {
+                                const date = new Date(log.created_at).toLocaleString();
+                                this.log(`[${date}] ${log.username}: ${log.message}`, 'response');
+                            });
+                        }
+                    });
+                    break;
                 default:
-                    this.log(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error');
+                    this.log(`Comando no encontrado: ${cmd}. Escribe 'help' para ver comandos.`, 'error');
             }
         }
     }
