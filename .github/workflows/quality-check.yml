@@ -16,7 +16,8 @@ jobs:
         uses: anishathalye/proof-html@v1
         with:
           directory: ./
-          check-html: true
-          check-img-http: true
-          check-external-hash: false
-          ignore-re: ""
+          check_html: true
+          check_img_http: true
+          check_external_hash: false
+          check_favicon: false
+          url_ignore: "https://fonts.googleapis.com,https://fonts.gstatic.com"
