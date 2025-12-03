@@ -3,6 +3,7 @@
 > Un experimento de Frontend centrado en manipulación del DOM, gestión de estados visuales y optimización de rendimiento sin frameworks.
 
 ![Project Status](https://img.shields.io/badge/Status-Completed-success)
+![CI Status](https://github.com/KimJesus22/Twenty-2.0/actions/workflows/quality-check.yml/badge.svg)
 ![Tech Stack](https://img.shields.io/badge/Tech-Vanilla_JS_%7C_CSS3_%7C_HTML5-yellow)
 
 ## 📋 Descripción del Proyecto
@@ -27,6 +28,14 @@ Implementación de un "Keylogger" seguro del lado del cliente para desbloquear c
 ### 3. Diseño "Brutalista" con CSS Puro
 Optimización de assets gráficos para reducir el tiempo de carga (LCP).
 - **Texturas:** El efecto de "ruido" (static noise) y las cintas adhesivas se generan matemáticamente con CSS y SVG Data URIs, eliminando la necesidad de cargar imágenes pesadas (.png/.jpg).
+
+### 6. ☁️ Cloud Persistence (Supabase)
+Integración de Backend-as-a-Service (BaaS) utilizando **Supabase** (PostgreSQL).
+- **Guestbook System:** La terminal CLI está conectada a una base de datos en la nube en tiempo real.
+- **Data Flow:**
+    1. CLI envía comando `log` → Fetch API → Supabase REST API.
+    2. Supabase guarda el registro con Timestamp.
+    3. Comando `read` recupera los últimos logs ordenados cronológicamente.
 
 ## 🛠️ Stack Tecnológico
 

@@ -1,0 +1,22 @@
+name: Twenty-2.0 Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  html-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: HTML Validation
+        uses: anishathalye/proof-html@v1
+        with:
+          directory: ./
+          check-html: true
+          check-img-http: true
+          check-external-hash: false
+          ignore-re: ""
