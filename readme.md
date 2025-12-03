@@ -137,6 +137,60 @@ albums.forEach(album => {
     });
 });
 
+## 📐 Arquitectura del Sistema
+
+### 1. Flujo de Autenticación Zero-Trust
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant T as Terminal (CLI)
+    participant E as Edge Function
+    participant S as Supabase
+
+    U->>T: login [password]
+    T->>E: POST /dema-auth {password}
+    Note over T,E: HTTPS (Secure)
+    E->>E: Validar CLANCY_SECRET
+    alt Password Correcto
+        E->>T: 200 OK { access: true, token: "..." }
+        T->>U: "Acceso Concedido"
+    else Password Incorrecto
+        E->>T: 401 Unauthorized
+        T->>U: "Acceso Denegado"
+    end
+```
+
+### 2. Arquitectura Real-Time (Chat Global)
+```mermaid
+graph TD
+    A[Cliente A] -->|INSERT Log| DB[(Supabase DB)]
+    DB -->|Replication Event| B[Cliente B]
+    DB -->|Replication Event| C[Cliente C]
+    
+    style DB fill:#3ecf8e,stroke:#333,stroke-width:2px
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+### 3. Infraestructura (Docker)
+```mermaid
+graph TD
+    subgraph Docker Container
+        N[Nginx Alpine]
+        subgraph Static Files
+            H[HTML]
+            J[JS]
+            C[CSS]
+        end
+        N --> H
+        N --> J
+        N --> C
+    end
+    Ext[Internet] -->|Port 80| N
+    
+    style Docker Container fill:#2496ed,stroke:#333,stroke-width:2px,color:#fff
+```
+
 ## 👤 Autor
 
 **Jesus Ceron** (KimJesus21)

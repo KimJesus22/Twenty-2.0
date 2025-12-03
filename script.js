@@ -306,6 +306,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.input.value = '';
                 }
             });
+
+            this.initRealtimeListener();
+        }
+
+        initRealtimeListener() {
+            supabase
+                .channel('guestbook-feed')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'guestbook' }, (payload) => {
+                    this.printIncomingLog(payload.new);
+                })
+                .subscribe();
+        }
+
+        printIncomingLog(record) {
+            const div = document.createElement('div');
+            div.className = 'terminal-response';
+
+            const prefix = document.createElement('span');
+            prefix.style.color = 'cyan';
+            prefix.style.fontWeight = 'bold';
+            prefix.textContent = '[📡 INCOMING TRANSMISSION] ';
+
+            const content = document.createElement('span');
+            content.textContent = `${record.username || 'Unknown'}: ${record.message}`;
+
+            div.appendChild(prefix);
+            div.appendChild(document.createElement('br'));
+            div.appendChild(content);
+
+            this.output.appendChild(div);
+            this.overlay.scrollTop = this.overlay.scrollHeight;
         }
 
         toggle() {
@@ -378,18 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.log('Verificando credenciales...', 'response');
 
                     try {
-                        const { data, error } = await supabase.functions.invoke('dema-auth', {
-                            body: { password: arg }
-                        });
-
-                        if (error || (data && data.error)) {
-                            this.log('>> Acceso Denegado. Violación de integridad.', 'error');
-                        } else if (data && data.access) {
-                            this.isAuthenticated = true;
-                            this.log('>> Acceso Concedido. Bienvenido, Clancy.', 'response');
-                            const lastLog = this.output.lastElementChild;
-                            if (lastLog) lastLog.style.color = '#0f0';
-                        }
                     } catch (err) {
                         this.log('Error de conexión con DEMA.', 'error');
                     }
@@ -407,76 +426,60 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.log('Uso: log [mensaje]', 'error');
                         return;
                     }
-                    this.log('Guardando en archivos de DEMA...', 'response');
-                    addLogToCloud(arg).then(success => {
-                        if (success) {
-                            this.log('>> Log guardado en archivos de DEMA.', 'response');
-                            const lastLog = this.output.lastElementChild;
-                            if (lastLog) lastLog.style.color = '#0f0';
-                        } else {
-                            this.log('Error: No se pudo guardar el log.', 'error');
-                        }
-                    });
-                    break;
-                case 'read':
-                    this.log('Recuperando archivos...', 'response');
-                    fetchCloudLogs().then(logs => {
-                        if (logs.length === 0) {
-                            this.log('No se encontraron archivos.', 'response');
-                        } else {
-                            logs.forEach(log => {
-                                const date = new Date(log.created_at).toLocaleString();
-                                this.log(`[${date}] ${log.username}: ${log.message}`, 'response');
-                            });
-                        }
-                    });
-                    break;
+            } else {
+                logs.forEach(log => {
+                    const date = new Date(log.created_at).toLocaleString();
+                    this.log(`[${date}] ${log.username}: ${log.message}`, 'response');
+                });
+            }
+        });
+break;
                 default:
-                    this.log(`Comando no encontrado: ${cmd}. Escribe 'help' para ver comandos.`, 'error');
+this.log(`Comando no encontrado: ${cmd}. Escribe 'help' para ver comandos.`, 'error');
             }
         }
     }
 
-    // Initialize Terminal
-    const terminal = new TerminalController(audioController);
+// Initialize Terminal
+const terminal = new TerminalController(audioController);
 
-    // Easter Egg: NED Protocol
-    const secretCode = 'NED';
-    let keyBuffer = [];
+// Easter Egg: NED Protocol
+const secretCode = 'NED';
+let keyBuffer = [];
 
-    document.addEventListener('keydown', (e) => {
-        keyBuffer.push(e.key.toUpperCase());
+document.addEventListener('keydown', (e) => {
+    keyBuffer.push(e.key.toUpperCase());
 
-        if (keyBuffer.length > secretCode.length) {
-            keyBuffer.shift();
-        }
+    if (keyBuffer.length > secretCode.length) {
+        keyBuffer.shift();
+    }
 
-        if (keyBuffer.join('') === secretCode) {
-            activateSecretProtocol();
-            keyBuffer = [];
-        }
-    });
+    if (keyBuffer.join('') === secretCode) {
+        activateSecretProtocol();
+        keyBuffer = [];
+    }
+});
 
-    function activateSecretProtocol() {
-        const overlay = document.createElement('div');
-        overlay.classList.add('secret-modal-overlay');
+function activateSecretProtocol() {
+    const overlay = document.createElement('div');
+    overlay.classList.add('secret-modal-overlay');
 
-        const modal = document.createElement('div');
-        modal.classList.add('secret-modal');
+    const modal = document.createElement('div');
+    modal.classList.add('secret-modal');
 
-        modal.innerHTML = `
+    modal.innerHTML = `
             <h2>⚠ ALERTA: BRECHA EN DEMA DETECTADA</h2>
             <p>Has encontrado a la criatura. El protocolo Cloro está activo.</p>
             <button class="secret-btn" id="escape-btn">ESCAPAR</button>
         `;
 
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
 
-        document.getElementById('escape-btn').addEventListener('click', () => {
-            document.body.removeChild(overlay);
-        });
-    }
+    document.getElementById('escape-btn').addEventListener('click', () => {
+        document.body.removeChild(overlay);
+    });
+}
 
     // Service Worker Registration moved to index.html as per request
 });
