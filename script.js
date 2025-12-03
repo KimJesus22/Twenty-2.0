@@ -273,18 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Security
             this.isAuthenticated = false;
-            this.PASSWORD_HASH = '5e04b2b4800c331730aba213f82332828fbec17a5140a1880bcbe1f3da1055f5'; // Placeholder
+            this.isAuthenticated = false;
 
             this.init();
         }
 
-        async sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
-        }
+
 
         init() {
             // Load albums for 'ls' command
@@ -381,14 +375,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.log('Uso: login [contraseña]', 'error');
                         return;
                     }
-                    const hash = await this.sha256(arg);
-                    if (hash === this.PASSWORD_HASH) {
-                        this.isAuthenticated = true;
-                        this.log('>> Acceso Concedido. Bienvenido, Clancy.', 'response');
-                        const lastLog = this.output.lastElementChild;
-                        if (lastLog) lastLog.style.color = '#0f0';
-                    } else {
-                        this.log('>> Acceso Denegado. Violación de integridad.', 'error');
+                    this.log('Verificando credenciales...', 'response');
+
+                    try {
+                        const { data, error } = await supabase.functions.invoke('dema-auth', {
+                            body: { password: arg }
+                        });
+
+                        if (error || (data && data.error)) {
+                            this.log('>> Acceso Denegado. Violación de integridad.', 'error');
+                        } else if (data && data.access) {
+                            this.isAuthenticated = true;
+                            this.log('>> Acceso Concedido. Bienvenido, Clancy.', 'response');
+                            const lastLog = this.output.lastElementChild;
+                            if (lastLog) lastLog.style.color = '#0f0';
+                        }
+                    } catch (err) {
+                        this.log('Error de conexión con DEMA.', 'error');
                     }
                     break;
                 case 'logout':

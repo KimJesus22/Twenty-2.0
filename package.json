@@ -1,0 +1,23 @@
+{
+  "name": "top-2.0",
+  "version": "1.0.0",
+  "description": "> Un experimento de Frontend centrado en manipulación del DOM, gestión de estados visuales y optimización de rendimiento sin frameworks.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KimJesus22/Twenty-2.0.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KimJesus22/Twenty-2.0/issues"
+  },
+  "homepage": "https://github.com/KimJesus22/Twenty-2.0#readme",
+  "devDependencies": {
+    "cypress": "^15.7.1"
+  }
+}
